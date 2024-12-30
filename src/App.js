@@ -58,7 +58,7 @@ function App() {
   useEffect(() => {
     const fetchTime = async () => {
       try {
-        const web3 = blockchain.web3 || new Web3("https://rpc.sonic.network"); // Use fallback Web3 if wallet not connected
+        const web3 = blockchain.web3 || new Web3("https://sonic.drpc.org");
         const contract = new web3.eth.Contract(
           [
             // Minimal ABI for timeUntilYoinkable
