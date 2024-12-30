@@ -1,5 +1,3 @@
-// src/redux/blockchain/blockchainReducer.js
-
 const initialState = {
   loading: false,
   account: null,
@@ -32,6 +30,7 @@ const blockchainReducer = (state = initialState, action) => {
         loading: false,
         account: null, // Reset account if connection failed
         web3: null, // Clear web3 on failure
+        contract: null, // Reset contract instance
         errorMsg: action.payload, // Set the error message for connection failure
       };
 
@@ -45,7 +44,12 @@ const blockchainReducer = (state = initialState, action) => {
       return {
         ...state,
         account: action.payload.account,
-        errorMsg: "", // Clear general error on account update
+        errorMsg: "", // Clear error messages on account update
+      };
+
+    case "RESET_BLOCKCHAIN":
+      return {
+        ...initialState, // Reset the state to the initial configuration
       };
 
     default:

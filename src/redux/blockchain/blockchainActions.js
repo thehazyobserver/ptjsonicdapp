@@ -1,18 +1,19 @@
-// src/redux/blockchain/blockchainActions.js
 import Web3 from "web3";
 
 // Action Types
 export const CONNECT_REQUEST = "CONNECT_REQUEST";
 export const CONNECT_SUCCESS = "CONNECT_SUCCESS";
 export const CONNECT_FAILED = "CONNECT_FAILED";
+export const UPDATE_ACCOUNT = "UPDATE_ACCOUNT";
 
 // Connect to the blockchain
-export const connect = (CONFIG) => {
-  return async (dispatch) => {
+export const connect = () => {
+  return async (dispatch, getState) => {
     dispatch({ type: CONNECT_REQUEST });
 
+    const CONFIG = getState().data.config; // Access the CONFIG from state
     if (!CONFIG) {
-      console.error("CONFIG data is missing.");
+      console.error("Configuration data is missing.");
       dispatch({
         type: CONNECT_FAILED,
         payload: "Configuration data is missing.",
@@ -39,6 +40,26 @@ export const connect = (CONFIG) => {
               account: accounts[0],
               web3,
             },
+          });
+
+          // Listen for account changes
+          window.ethereum.on("accountsChanged", (accounts) => {
+            if (accounts.length > 0) {
+              dispatch({
+                type: UPDATE_ACCOUNT,
+                payload: { account: accounts[0] },
+              });
+            } else {
+              dispatch({
+                type: CONNECT_FAILED,
+                payload: "Please connect to a Web3 wallet.",
+              });
+            }
+          });
+
+          // Listen for network changes
+          window.ethereum.on("chainChanged", () => {
+            window.location.reload();
           });
         } else {
           console.error("Wrong network. Please switch to the correct network.");
