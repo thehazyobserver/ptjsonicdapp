@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Web3 from "web3";
 import { connect } from "./redux/blockchain/blockchainActions";
 import { initializeContract } from "./redux/data/dataActions";
+import contractABI from "./redux/blockchain/abis/erc721Abi.json"; // Import the ABI
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
 
@@ -48,11 +49,15 @@ const formatTime = (seconds) => {
   return `${h}h ${m}m ${s}s`;
 };
 
+const CONTRACT_ADDRESS = "0x374b897AF1c0213cc2153a761A856bd80fb91c92"; // Replace with your contract address
+const RPC_URL = "https://sonic.drpc.org"; // Replace with your RPC URL
+
 function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
   const [timeUntilYoinkable, setTimeUntilYoinkable] = useState(0);
   const [yoinkToAddress, setYoinkToAddress] = useState("");
+  const [contract, setContract] = useState(null);
 
   const handleConnectWallet = () => {
     dispatch(connect());
@@ -60,11 +65,11 @@ function App() {
 
   const handleYoink = async () => {
     try {
-      if (blockchain.contract) {
-        await blockchain.contract.methods.yoink().send({ from: blockchain.account });
+      if (contract && blockchain.account) {
+        await contract.methods.yoink().send({ from: blockchain.account });
         alert("Yoink successful!");
       } else {
-        alert("Contract is not initialized.");
+        alert("Contract is not initialized or wallet not connected.");
       }
     } catch (error) {
       console.error("Error during yoink:", error);
@@ -74,11 +79,11 @@ function App() {
 
   const handleYoinkTo = async () => {
     try {
-      if (blockchain.contract) {
-        await blockchain.contract.methods.yoinkTo(yoinkToAddress).send({ from: blockchain.account });
+      if (contract && blockchain.account) {
+        await contract.methods.yoinkTo(yoinkToAddress).send({ from: blockchain.account });
         alert(`Yoinked to ${yoinkToAddress} successfully!`);
       } else {
-        alert("Contract is not initialized.");
+        alert("Contract is not initialized or wallet not connected.");
       }
     } catch (error) {
       console.error("Error during yoinkTo:", error);
@@ -89,27 +94,18 @@ function App() {
   useEffect(() => {
     if (blockchain.account && blockchain.web3) {
       dispatch(initializeContract());
+      const web3 = blockchain.web3 || new Web3(RPC_URL);
+      const initializedContract = new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
+      setContract(initializedContract);
     }
   }, [blockchain.account, blockchain.web3, dispatch]);
 
   useEffect(() => {
     const fetchTime = async () => {
       try {
-        const web3 = blockchain.web3 || new Web3("https://sonic.drpc.org");
-        const contract = new web3.eth.Contract(
-          [
-            {
-              constant: true,
-              inputs: [],
-              name: "timeUntilYoinkable",
-              outputs: [{ name: "", type: "uint256" }],
-              type: "function",
-            },
-          ],
-          "0x374b897AF1c0213cc2153a761A856bd80fb91c92"
-        );
-
-        const time = await contract.methods.timeUntilYoinkable().call();
+        const web3 = blockchain.web3 || new Web3(RPC_URL);
+        const initializedContract = contract || new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
+        const time = await initializedContract.methods.timeUntilYoinkable().call();
         setTimeUntilYoinkable(parseInt(time, 10));
       } catch (error) {
         console.error("Error fetching timeUntilYoinkable:", error);
@@ -118,7 +114,7 @@ function App() {
     };
 
     fetchTime();
-  }, [blockchain.web3, blockchain.contract]);
+  }, [blockchain.web3, contract]);
 
   return (
     <s.Screen>
