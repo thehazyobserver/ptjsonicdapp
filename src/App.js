@@ -33,6 +33,14 @@ const YoinkSection = styled.div`
   }
 `;
 
+const InputField = styled.input`
+  padding: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
 const formatTime = (seconds) => {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -44,9 +52,38 @@ function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
   const [timeUntilYoinkable, setTimeUntilYoinkable] = useState(0);
+  const [yoinkToAddress, setYoinkToAddress] = useState("");
 
   const handleConnectWallet = () => {
     dispatch(connect());
+  };
+
+  const handleYoink = async () => {
+    try {
+      if (blockchain.contract) {
+        await blockchain.contract.methods.yoink().send({ from: blockchain.account });
+        alert("Yoink successful!");
+      } else {
+        alert("Contract is not initialized.");
+      }
+    } catch (error) {
+      console.error("Error during yoink:", error);
+      alert("Yoink failed.");
+    }
+  };
+
+  const handleYoinkTo = async () => {
+    try {
+      if (blockchain.contract) {
+        await blockchain.contract.methods.yoinkTo(yoinkToAddress).send({ from: blockchain.account });
+        alert(`Yoinked to ${yoinkToAddress} successfully!`);
+      } else {
+        alert("Contract is not initialized.");
+      }
+    } catch (error) {
+      console.error("Error during yoinkTo:", error);
+      alert("YoinkTo failed.");
+    }
   };
 
   useEffect(() => {
@@ -58,10 +95,9 @@ function App() {
   useEffect(() => {
     const fetchTime = async () => {
       try {
-        const web3 = blockchain.web3 || new Web3("https://sonic.drpc.org");
+        const web3 = blockchain.web3 || new Web3("https://rpc.sonic.network");
         const contract = new web3.eth.Contract(
           [
-            // Minimal ABI for timeUntilYoinkable
             {
               constant: true,
               inputs: [],
@@ -70,14 +106,14 @@ function App() {
               type: "function",
             },
           ],
-          "0x374b897AF1c0213cc2153a761A856bd80fb91c92" // Replace with CONFIG.CONTRACT_ADDRESS
+          "0x374b897AF1c0213cc2153a761A856bd80fb91c92"
         );
 
         const time = await contract.methods.timeUntilYoinkable().call();
         setTimeUntilYoinkable(parseInt(time, 10));
       } catch (error) {
         console.error("Error fetching timeUntilYoinkable:", error);
-        setTimeUntilYoinkable(0); // Default fallback
+        setTimeUntilYoinkable(0);
       }
     };
 
@@ -99,6 +135,18 @@ function App() {
               ? `Time Until Yoinkable: ${formatTime(timeUntilYoinkable)}`
               : "The joint is yoinkable now!"}
           </div>
+          {timeUntilYoinkable <= 0 && (
+            <>
+              <StyledButton onClick={handleYoink}>Yoink</StyledButton>
+              <InputField
+                type="text"
+                placeholder="Enter address to Yoink To"
+                value={yoinkToAddress}
+                onChange={(e) => setYoinkToAddress(e.target.value)}
+              />
+              <StyledButton onClick={handleYoinkTo}>Yoink To</StyledButton>
+            </>
+          )}
         </YoinkSection>
       </s.Container>
     </s.Screen>
