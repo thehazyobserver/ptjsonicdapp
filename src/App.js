@@ -61,8 +61,14 @@ function App() {
         const web3 = blockchain.web3 || new Web3("https://rpc.sonic.network"); // Use fallback Web3 if wallet not connected
         const contract = new web3.eth.Contract(
           [
-            // Include minimal ABI to fetch `timeUntilYoinkable`
-            { constant: true, inputs: [], name: "timeUntilYoinkable", outputs: [{ name: "", type: "uint256" }], type: "function" },
+            // Minimal ABI for timeUntilYoinkable
+            {
+              constant: true,
+              inputs: [],
+              name: "timeUntilYoinkable",
+              outputs: [{ name: "", type: "uint256" }],
+              type: "function",
+            },
           ],
           "0x374b897AF1c0213cc2153a761A856bd80fb91c92" // Replace with CONFIG.CONTRACT_ADDRESS
         );
