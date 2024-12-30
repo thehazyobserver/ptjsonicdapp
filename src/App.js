@@ -1,64 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { connect } from "./redux/blockchain/blockchainActions";
-import { initializeContract } from "./redux/data/dataActions";
-import * as s from "./styles/globalStyles";
-import styled from "styled-components";
-import Web3 from "web3";
-
-const StyledButton = styled.button`
-  padding: 10px;
-  border-radius: 0;
-  border: none;
-  background-color: black;
-  font-weight: bold;
-  color: white;
-  width: 100%;
-  cursor: pointer;
-  text-align: center;
-  :hover {
-    background-color: #444;
-  }
-`;
-
-const YoinkSection = styled.div`
-  margin-top: 20px;
-  text-align: center;
-
-  .yoink-timer {
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--accent-text);
-    margin-bottom: 10px;
-  }
-`;
-
-const InputField = styled.input`
-  padding: 10px;
-  margin-bottom: 10px;
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-`;
-
-const formatTime = (seconds) => {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  return `${h}h ${m}m ${s}s`;
-};
-
 function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
-  const [timeUntilYoinkable, setTimeUntilYoinkable] = useState(0);
+  const [timeUntilYoinkable, setTimeUntilYoinkable] = useState(null);
   const [yoinkToAddress, setYoinkToAddress] = useState("");
+  const [isLoadingYoink, setIsLoadingYoink] = useState(false);
+  const [isLoadingYoinkTo, setIsLoadingYoinkTo] = useState(false);
 
   const handleConnectWallet = () => {
     dispatch(connect());
   };
 
   const handleYoink = async () => {
+    setIsLoadingYoink(true);
     try {
       if (blockchain.contract) {
         await blockchain.contract.methods.yoink().send({ from: blockchain.account });
@@ -68,21 +21,31 @@ function App() {
       }
     } catch (error) {
       console.error("Error during yoink:", error);
-      alert("Yoink failed.");
+      alert("Yoink failed. Please try again.");
+    } finally {
+      setIsLoadingYoink(false);
     }
   };
 
   const handleYoinkTo = async () => {
+    if (!Web3.utils.isAddress(yoinkToAddress)) {
+      alert("Please enter a valid Ethereum address.");
+      return;
+    }
+
+    setIsLoadingYoinkTo(true);
     try {
       if (blockchain.contract) {
         await blockchain.contract.methods.yoinkTo(yoinkToAddress).send({ from: blockchain.account });
-        alert(`Yoinked to ${yoinkToAddress} successfully!`);
+        alert(`Successfully yoinked to ${yoinkToAddress}!`);
       } else {
         alert("Contract is not initialized.");
       }
     } catch (error) {
       console.error("Error during yoinkTo:", error);
-      alert("YoinkTo failed.");
+      alert("YoinkTo failed. Please try again.");
+    } finally {
+      setIsLoadingYoinkTo(false);
     }
   };
 
@@ -113,7 +76,7 @@ function App() {
         setTimeUntilYoinkable(parseInt(time, 10));
       } catch (error) {
         console.error("Error fetching timeUntilYoinkable:", error);
-        setTimeUntilYoinkable(0);
+        setTimeUntilYoinkable(null);
       }
     };
 
@@ -131,20 +94,26 @@ function App() {
         </s.TextTitle>
         <YoinkSection>
           <div className="yoink-timer">
-            {timeUntilYoinkable > 0
+            {timeUntilYoinkable === null
+              ? "Unable to fetch Yoinkable time."
+              : timeUntilYoinkable > 0
               ? `Time Until Yoinkable: ${formatTime(timeUntilYoinkable)}`
               : "The joint is yoinkable now!"}
           </div>
-          {timeUntilYoinkable <= 0 && (
+          {timeUntilYoinkable === 0 && (
             <>
-              <StyledButton onClick={handleYoink}>Yoink</StyledButton>
+              <StyledButton onClick={handleYoink} disabled={isLoadingYoink}>
+                {isLoadingYoink ? "Processing Yoink..." : "Yoink"}
+              </StyledButton>
               <InputField
                 type="text"
                 placeholder="Enter address to Yoink To"
                 value={yoinkToAddress}
                 onChange={(e) => setYoinkToAddress(e.target.value)}
               />
-              <StyledButton onClick={handleYoinkTo}>Yoink To</StyledButton>
+              <StyledButton onClick={handleYoinkTo} disabled={isLoadingYoinkTo}>
+                {isLoadingYoinkTo ? "Processing YoinkTo..." : "Yoink To"}
+              </StyledButton>
             </>
           )}
         </YoinkSection>
