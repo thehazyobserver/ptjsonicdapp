@@ -5,7 +5,7 @@ import store from './redux/store';
 import './index.css';
 
 const App = lazy(() => import('./App')); // Lazy load the App component
-const reportWebVitals = lazy(() => import('./reportWebVitals')); // Lazy load web vitals
+import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

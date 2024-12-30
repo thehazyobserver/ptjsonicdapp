@@ -4,6 +4,7 @@ import { connect } from "./redux/blockchain/blockchainActions";
 import { initializeContract } from "./redux/data/dataActions";
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
+import Web3 from "web3";
 
 const StyledButton = styled.button`
   padding: 10px;
@@ -56,24 +57,26 @@ function App() {
 
   useEffect(() => {
     const fetchTime = async () => {
-      if (blockchain.contract) {
-        try {
-          const time = await blockchain.contract.methods.timeUntilYoinkable().call();
-          setTimeUntilYoinkable(parseInt(time, 10));
-        } catch (error) {
-          console.error("Error fetching timeUntilYoinkable:", error);
-        }
+      try {
+        const web3 = blockchain.web3 || new Web3("https://rpc.sonic.network"); // Use fallback Web3 if wallet not connected
+        const contract = new web3.eth.Contract(
+          [
+            // Include minimal ABI to fetch `timeUntilYoinkable`
+            { constant: true, inputs: [], name: "timeUntilYoinkable", outputs: [{ name: "", type: "uint256" }], type: "function" },
+          ],
+          "0x374b897AF1c0213cc2153a761A856bd80fb91c92" // Replace with CONFIG.CONTRACT_ADDRESS
+        );
+
+        const time = await contract.methods.timeUntilYoinkable().call();
+        setTimeUntilYoinkable(parseInt(time, 10));
+      } catch (error) {
+        console.error("Error fetching timeUntilYoinkable:", error);
+        setTimeUntilYoinkable(0); // Default fallback
       }
     };
 
-    // Automatically fetch time if a contract instance exists
-    if (blockchain.contract) {
-      fetchTime();
-    } else {
-      // Mock contract interaction for the timer if no wallet is connected
-      setTimeUntilYoinkable(3600); // Replace with actual fallback logic if needed
-    }
-  }, [blockchain.contract]);
+    fetchTime();
+  }, [blockchain.web3, blockchain.contract]);
 
   return (
     <s.Screen>

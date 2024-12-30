@@ -11,8 +11,8 @@ export const connect = () => {
   return async (dispatch, getState) => {
     dispatch({ type: CONNECT_REQUEST });
 
-    // Get CONFIG from state
-    const CONFIG = getState()?.data?.config;
+    // Get CONFIG from state or fallback to config.json
+    const CONFIG = getState()?.data?.config || require("../../config/config.json");
     if (!CONFIG) {
       console.error("Configuration data is missing.");
       dispatch({
@@ -21,6 +21,8 @@ export const connect = () => {
       });
       return;
     }
+
+    console.log("Connecting with CONFIG:", CONFIG);
 
     // Check if a Web3 wallet is available
     if (window.ethereum) {
@@ -34,6 +36,8 @@ export const connect = () => {
         const networkId = await window.ethereum.request({
           method: "net_version",
         });
+
+        console.log("Accounts:", accounts, "Network ID:", networkId);
 
         // Validate network
         if (networkId === CONFIG.NETWORK.ID.toString()) {
