@@ -1,25 +1,23 @@
 import { applyMiddleware, compose, createStore, combineReducers } from "redux";
-import thunk from "redux-thunk"; // Default import for thunk middleware
+import { thunk } from "redux-thunk"; // Named import
 import blockchainReducer from "./blockchain/blockchainReducer";
 import dataReducer from "./data/dataReducer";
 
-// Combine all reducers into a single root reducer
+// Combine Reducers
 const rootReducer = combineReducers({
-  blockchain: blockchainReducer, // Handles blockchain-related state
-  data: dataReducer, // Handles NFT and application data state
+  blockchain: blockchainReducer,
+  data: dataReducer,
 });
 
-// Middleware: Add any middleware here (e.g., thunk for async actions)
+// Middleware and Enhancers
 const middleware = [thunk];
+const composeEnhancers = 
+  (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 
-// Redux DevTools setup for development debugging
-const composeEnhancers =
-  (typeof window !== "undefined" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
-
-// Create the Redux store with middleware and enhancers
+// Configure Store
 const store = createStore(
   rootReducer,
-  composeEnhancers(applyMiddleware(...middleware)) // Apply middleware and enhancers
+  composeEnhancers(applyMiddleware(...middleware))
 );
 
 export default store;
