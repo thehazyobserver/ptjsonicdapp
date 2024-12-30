@@ -95,7 +95,7 @@ function App() {
   useEffect(() => {
     const fetchTime = async () => {
       try {
-        const web3 = blockchain.web3 || new Web3("https://rpc.sonic.network");
+        const web3 = blockchain.web3 || new Web3("https://sonic.drpc.org");
         const contract = new web3.eth.Contract(
           [
             {
