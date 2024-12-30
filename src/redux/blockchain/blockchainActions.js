@@ -8,9 +8,18 @@ export const UPDATE_ACCOUNT = "UPDATE_ACCOUNT";
 
 // Connect to the blockchain
 export const connect = () => {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     dispatch({ type: CONNECT_REQUEST });
 
+    if (!CONFIG) {
+      console.error("CONFIG data is missing.");
+      dispatch({
+        type: CONNECT_FAILED,
+        payload: "Configuration data is missing.",
+      });
+      return;
+    }
+    
     const CONFIG = getState().data.config; // Access the CONFIG from state
     if (!CONFIG) {
       console.error("Configuration data is missing.");
