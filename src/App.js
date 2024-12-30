@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { connect } from "./redux/blockchain/blockchainActions";
@@ -67,8 +66,12 @@ function App() {
       }
     };
 
+    // Automatically fetch time if a contract instance exists
     if (blockchain.contract) {
       fetchTime();
+    } else {
+      // Mock contract interaction for the timer if no wallet is connected
+      setTimeUntilYoinkable(3600); // Replace with actual fallback logic if needed
     }
   }, [blockchain.contract]);
 
@@ -81,15 +84,13 @@ function App() {
         <s.TextTitle style={{ textAlign: "center", fontSize: 30, marginTop: 20 }}>
           Pass the JOINT
         </s.TextTitle>
-        {blockchain.account && (
-          <YoinkSection>
-            <div className="yoink-timer">
-              {timeUntilYoinkable > 0
-                ? `Time Until Yoinkable: ${formatTime(timeUntilYoinkable)}`
-                : "The joint is yoinkable now!"}
-            </div>
-          </YoinkSection>
-        )}
+        <YoinkSection>
+          <div className="yoink-timer">
+            {timeUntilYoinkable > 0
+              ? `Time Until Yoinkable: ${formatTime(timeUntilYoinkable)}`
+              : "The joint is yoinkable now!"}
+          </div>
+        </YoinkSection>
       </s.Container>
     </s.Screen>
   );
