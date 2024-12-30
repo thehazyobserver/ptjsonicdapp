@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import './index.css';
+import reportWebVitals from './reportWebVitals'; // Use static import
 
 const App = lazy(() => import('./App')); // Lazy load the App component
-import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -19,7 +19,5 @@ root.render(
   </React.StrictMode>
 );
 
-// Dynamically log web vitals
-reportWebVitals().then((module) => {
-  module.default(console.log);
-});
+// Log web vitals
+reportWebVitals(console.log);
