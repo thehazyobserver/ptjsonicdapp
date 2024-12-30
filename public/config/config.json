@@ -1,13 +1,13 @@
 {
-  "CONTRACT_ADDRESS": "0xcBBC42c3b6198dd3856B77e92a69Adac81abCF5a",
-  "SCAN_LINK": "https://ftmscan.com/address/0xcBBC42c3b6198dd3856B77e92a69Adac81abCF5a",
+  "CONTRACT_ADDRESS": "0x374b897AF1c0213cc2153a761A856bd80fb91c92",
+  "SCAN_LINK": "https://sonicscan.org/token/0x374b897af1c0213cc2153a761a856bd80fb91c92",
   "NETWORK": {
     "NAME": "Fantom",
     "SYMBOL": "FTM",
     "ID": 250
   },
-  "NFT_NAME": "test",
-  "SYMBOL": "test",
+  "NFT_NAME": "Pass The Joint",
+  "SYMBOL": "JOINT",
   "GAS_LIMIT": 1000000,
   "MARKETPLACE": "Paintswap",
   "MARKETPLACE_LINK": "https://paintswap.finance/marketplace",

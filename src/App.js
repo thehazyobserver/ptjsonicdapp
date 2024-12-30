@@ -1,344 +1,171 @@
 // App.js
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { connect } from "./redux/blockchain/blockchainActions";
-import { initializeContract, fetchData } from "./redux/data/dataActions";
+import { initializeContract, fetchData, fetchTimeUntilYoinkable } from "./redux/data/dataActions";
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
-import defaultImage from "./assets/images/JOINTPACK.jpg"; // Re-import the default image
-import passTheJointImage from "./assets/images/PassTheJoint.gif"; // Import the new image
-import paintswapImage from "./assets/images/paintswap.png"; // Import the paintswap image
-import telegramImage from "./assets/images/telegram.png"; // Import the telegram image
-import twitterImage from "./assets/images/x.png"; // Import the twitter image
-
-// Utility Functions
-const truncate = (input, len) =>
-  input.length > len ? `${input.substring(0, len)}...` : input;
-
-// Styled Components
-const NFTGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 20px;
-  justify-items: center;
-  margin-bottom: 20px;
-`;
-
-const NFTBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 150px;
-  height: 200px;
-  margin: 5px;
-  border: 5px solid black; /* Change border color to black */
-  background-color: white; /* Change background color to white */
-  text-align: center;
-`;
-
-const NFTImage = styled.img`
-  width: 100px;
-  height: 100px;
-  margin-bottom: 10px;
-`;
 
 const StyledButton = styled.button`
   padding: 10px;
-  border-radius: 0; /* Make the button rectangular */
+  border-radius: 0;
   border: none;
-  background-color: black; /* Make the button black */
+  background-color: black;
   font-weight: bold;
-  color: white; /* Font color white */
-  width: 100%; /* Make the button the width of the box */
+  color: white;
+  width: 100%;
   cursor: pointer;
   text-align: center;
-
   :hover {
-    background-color: #444; /* Darker shade on hover */
+    background-color: #444;
   }
 `;
 
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
+const StyledInput = styled.input`
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+  margin-bottom: 10px;
+`;
 
-  a {
-    margin: 10px;
-  }
+const YoinkSection = styled.div`
+  margin-top: 20px;
+  text-align: center;
 
-  img {
-    width: 40px;
-    height: 40px;
+  .yoink-timer {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--accent-text);
+    margin-bottom: 10px;
   }
 `;
+
+const formatTime = (seconds) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${h}h ${m}m ${s}s`;
+};
 
 function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
   const data = useSelector((state) => state.data);
-  const [selectedToken, setSelectedToken] = useState(null);
-  const [rewardMessage, setRewardMessage] = useState("");
-  const [configLoaded, setConfigLoaded] = useState(false);
-  const [CONFIG, SET_CONFIG] = useState({
-    CONTRACT_ADDRESS: "",
-    SCAN_LINK: "",
-    NETWORK: {
-      NAME: "",
-      SYMBOL: "",
-      ID: 0,
-    },
-    NFT_NAME: "",
-    SYMBOL: "",
-    SHOW_BACKGROUND: true,
-  });
+  const [targetAddress, setTargetAddress] = useState(""); // Input for yoinkTo address
+  const [timeUntilYoinkable, setTimeUntilYoinkable] = useState(0);
+  const [holdingJoint, setHoldingJoint] = useState(false); // Tracks if the user holds token 0
 
-  // Fetch config.json data
-  const getConfig = useCallback(async () => {
-    try {
-      const configResponse = await fetch("/config/config.json", {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-      const config = await configResponse.json();
-      SET_CONFIG(config);
-      setConfigLoaded(true);
-    } catch (error) {
-      console.error("Error fetching config:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    getConfig();
-  }, [getConfig]);
-
-  // Connect Wallet Handler
   const handleConnectWallet = () => {
-    if (configLoaded) {
-      dispatch(connect(CONFIG));
-    } else {
-      console.error("Config not loaded yet.");
-    }
+    dispatch(connect());
   };
 
-  // Initialize contract when account and web3 are available
   useEffect(() => {
-    if (blockchain.account && blockchain.web3 && CONFIG.CONTRACT_ADDRESS) {
-      dispatch(initializeContract(CONFIG.CONTRACT_ADDRESS));
+    if (blockchain.account && blockchain.web3) {
+      dispatch(initializeContract());
     }
-  }, [blockchain.account, blockchain.web3, dispatch, CONFIG.CONTRACT_ADDRESS]);
+  }, [blockchain.account, blockchain.web3, dispatch]);
 
-  // Fetch data when contract is initialized
   useEffect(() => {
-    if (blockchain.account && blockchain.LootBoxNFT) {
-      dispatch(fetchData());
+    if (blockchain.account && blockchain.contract) {
+      checkHoldingJoint();
+      fetchTime();
     }
-  }, [blockchain.account, blockchain.LootBoxNFT, dispatch]);
+  }, [blockchain.account, blockchain.contract]);
 
-  // Handle account and chain changes
-  useEffect(() => {
-    if (window.ethereum) {
-      const handleAccountsChanged = (accounts) => {
-        dispatch({ type: "UPDATE_ACCOUNT", payload: { account: accounts[0] } });
-        dispatch(initializeContract(CONFIG.CONTRACT_ADDRESS));
-        dispatch(fetchData());
-      };
-
-      const handleChainChanged = () => {
-        window.location.reload();
-      };
-
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
-      window.ethereum.on("chainChanged", handleChainChanged);
-
-      // Cleanup function
-      return () => {
-        window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
-        window.ethereum.removeListener("chainChanged", handleChainChanged);
-      };
-    }
-  }, [dispatch, CONFIG.CONTRACT_ADDRESS]);
-
-  // Poll for RewardClaimed event
-  const pollForRewardClaimed = async (tokenId, fromBlock) => {
-    const pollInterval = 2000; // Poll every 2 seconds
-    const pollTimeout = 60000; // Timeout after 60 seconds
-    const startTime = Date.now();
-
-    const poll = async () => {
-      try {
-        const events = await blockchain.LootBoxNFT.getPastEvents('RewardClaimed', {
-          filter: { user: blockchain.account, tokenId: tokenId },
-          fromBlock: fromBlock,
-          toBlock: 'latest',
-        });
-
-        if (events.length > 0) {
-          const { amount } = events[0].returnValues;
-          setRewardMessage(
-            `You have received ${blockchain.web3.utils.fromWei(amount, 'ether')} $JOINT from $JOINT PACK #${tokenId}. The $JOINT PACK is now burnt.`
-          );
-          dispatch(fetchData());
-        } else if (Date.now() - startTime < pollTimeout) {
-          setTimeout(poll, pollInterval);
-        } else {
-          setRewardMessage('Reward not received within the expected time. Please check your wallet later.');
-        }
-      } catch (error) {
-        console.error('Error polling for RewardClaimed event:', error);
-        setRewardMessage('An error occurred while fetching your reward. Please check your wallet later.');
-      }
-    };
-
-    poll();
-  };
-
-  // Open LootBox
-  const openLootBox = async (tokenId) => {
+  const checkHoldingJoint = async () => {
     try {
-      setRewardMessage(`Opening LootBox #${tokenId}...`);
+      const ownerOfToken0 = await blockchain.contract.methods.ownerOf(0).call();
+      setHoldingJoint(ownerOfToken0.toLowerCase() === blockchain.account.toLowerCase());
+    } catch (error) {
+      console.error("Error checking ownership of token 0:", error);
+    }
+  };
 
-      const tx = await blockchain.LootBoxNFT.methods
-        .openLootBox(tokenId)
-        .send({ from: blockchain.account, gas: CONFIG.GAS_LIMIT });
+  const fetchTime = async () => {
+    try {
+      const time = await blockchain.contract.methods.timeUntilYoinkable().call();
+      setTimeUntilYoinkable(parseInt(time, 10));
+    } catch (error) {
+      console.error("Error fetching timeUntilYoinkable:", error);
+    }
+  };
 
-      console.log('Transaction Receipt:', tx);
+  // Update the timeUntilYoinkable every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (blockchain.contract) fetchTime();
+    }, 1000);
 
-      const transactionHash = tx.transactionHash;
+    return () => clearInterval(interval);
+  }, [blockchain.contract]);
 
-      let fromBlock;
-
-      if (tx.blockNumber) {
-        fromBlock = tx.blockNumber;
-      } else {
-        // Fetch the transaction receipt if blockNumber is not present
-        const txReceipt = await blockchain.web3.eth.getTransactionReceipt(transactionHash);
-        fromBlock = txReceipt.blockNumber;
+  const handleYoink = async () => {
+    try {
+      if (!holdingJoint) {
+        alert("Not holding the joint");
+        return;
       }
 
-      setRewardMessage(
-        `LootBox #${tokenId} opened successfully. Waiting for reward...`
-      );
-
-      // Poll for RewardClaimed event
-      pollForRewardClaimed(tokenId, fromBlock);
+      const tx = await blockchain.contract.methods.yoink().send({ from: blockchain.account });
+      console.log("Yoink transaction successful:", tx);
+      dispatch(fetchData());
     } catch (error) {
-      console.error('Error opening lootbox:', error);
-      setRewardMessage('Failed to open LootBox. Check console for details.');
+      console.error("Error during yoink:", error);
+    }
+  };
+
+  const handleYoinkTo = async () => {
+    if (!holdingJoint) {
+      alert("Not holding the joint");
+      return;
+    }
+
+    if (!blockchain.web3.utils.isAddress(targetAddress)) {
+      alert("Invalid address");
+      return;
+    }
+
+    try {
+      const tx = await blockchain.contract.methods.yoinkTo(targetAddress).send({ from: blockchain.account });
+      console.log("YoinkTo transaction successful:", tx);
+      dispatch(fetchData());
+    } catch (error) {
+      console.error("Error during yoinkTo:", error);
     }
   };
 
   return (
     <s.Screen>
-      <s.Container
-        flex={1}
-        ai={"center"}
-        style={{ padding: 24, backgroundColor: "var(--primary)" }}
-        image={CONFIG.SHOW_BACKGROUND ? "/config/images/bg.png" : null}
-      >
-        <StyledButton onClick={handleConnectWallet} disabled={!configLoaded}>
-          {blockchain.account
-            ? `Connected: ${truncate(blockchain.account, 15)}`
-            : "Connect Wallet"}
+      <s.Container flex={1} ai={"center"} style={{ padding: 24 }}>
+        <StyledButton onClick={handleConnectWallet}>
+          {blockchain.account ? `Connected: ${blockchain.account}` : "Connect Wallet"}
         </StyledButton>
+        <s.TextTitle style={{ textAlign: "center", fontSize: 30, marginTop: 20 }}>
+          Pass the JOINT
+        </s.TextTitle>
 
-        {blockchain.errorMsg !== "" && (
-          <s.TextDescription
-            style={{
-              textAlign: "center",
-              fontSize: 20,
-              color: "var(--accent-text)",
-            }}
-          >
-            {blockchain.errorMsg}
-          </s.TextDescription>
-        )}
-
-        <ButtonContainer>
-          <a href="https://paintswap.finance/marketplace/fantom/collections/%24joint-packs" target="_blank" rel="noopener noreferrer">
-            <img src={paintswapImage} alt="PaintSwap" />
-          </a>
-          <a href="https://x.com/PassTheJointFTM" target="_blank" rel="noopener noreferrer">
-            <img src={twitterImage} alt="Twitter" />
-          </a>
-          <a href="https://t.me/PASSTHEJOINTFTM/" target="_blank" rel="noopener noreferrer">
-            <img src={telegramImage} alt="Telegram" />
-          </a>
-          <a href="https://passthejoint.netlify.app/" target="_blank" rel="noopener noreferrer">
-            <img src={passTheJointImage} alt="Pass the $JOINT" />
-          </a>
-        </ButtonContainer>
-
-        {blockchain.account && blockchain.LootBoxNFT ? (
-          <>
-            <s.TextTitle
-              style={{
-                textAlign: "center",
-                fontSize: 40,
-                fontWeight: "bold",
-                color: "var(--accent-text)",
-              }}
-            >
-              Your $Joint Packs
-            </s.TextTitle>
-            {data.nfts && data.nfts.length > 0 ? (
-              <NFTGrid>
-                {data.nfts.map(({ tokenId, image }) => (
-                  <NFTBox key={tokenId}>
-                    <NFTImage
-                      src={image || defaultImage} // Use defaultImage if image is not provided
-                      alt={`LootBox ${tokenId}`}
-                      selected={selectedToken === tokenId}
-                      onClick={() => setSelectedToken(tokenId)}
-                    />
-                    <s.TextDescription style={{ textAlign: "center" }}>
-                      {`Token ID: ${tokenId}`}
-                    </s.TextDescription>
-                    <StyledButton onClick={() => openLootBox(tokenId)}>
-                      Open LootBox
-                    </StyledButton>
-                  </NFTBox>
-                ))}
-              </NFTGrid>
-            ) : (
-              <s.TextDescription
-                style={{
-                  textAlign: "center",
-                  fontSize: 20,
-                  color: "var(--accent-text)",
-                }}
-              >
-                No $JOINT Packs found.
+        {blockchain.account && (
+          <YoinkSection>
+            <div className="yoink-timer">
+              {timeUntilYoinkable > 0
+                ? `Time Until Yoinkable: ${formatTime(timeUntilYoinkable)}`
+                : "The joint is yoinkable now!"}
+            </div>
+            <StyledButton onClick={handleYoink}>Yoink</StyledButton>
+            <StyledInput
+              type="text"
+              placeholder="Enter address to yoink to"
+              value={targetAddress}
+              onChange={(e) => setTargetAddress(e.target.value)}
+            />
+            <StyledButton onClick={handleYoinkTo}>YoinkTo</StyledButton>
+            {!holdingJoint && (
+              <s.TextDescription style={{ textAlign: "center", marginTop: 10 }}>
+                Not holding the joint
               </s.TextDescription>
             )}
-            {rewardMessage && (
-              <s.TextDescription
-                style={{
-                  textAlign: "center",
-                  fontSize: 20,
-                  fontWeight: "bold",
-                  color: "var(--accent-text)",
-                }}
-              >
-                {rewardMessage}
-              </s.TextDescription>
-            )}
-          </>
-        ) : (
-          <s.TextDescription
-            style={{
-              textAlign: "center",
-              fontSize: 20,
-              color: "var(--accent-text)",
-            }}
-          >
-            Please connect your wallet to view your $JOINT PACKs.
-          </s.TextDescription>
+          </YoinkSection>
         )}
       </s.Container>
     </s.Screen>

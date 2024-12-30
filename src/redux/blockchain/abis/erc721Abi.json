@@ -1,50 +1,8 @@
 [
 	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_symbol",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_initBaseURI",
-				"type": "string"
-			},
-			{
-				"internalType": "address",
-				"name": "_rewardToken",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_vrfCoordinator",
-				"type": "address"
-			}
-		],
+		"inputs": [],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "have",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "want",
-				"type": "address"
-			}
-		],
-		"name": "OnlyCoordinatorCanFulfill",
-		"type": "error"
 	},
 	{
 		"anonymous": false,
@@ -115,54 +73,10 @@
 		"type": "function"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "requestId",
-				"type": "uint256"
-			}
-		],
-		"name": "LootBoxOpened",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_mintAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "mint",
+		"inputs": [],
+		"name": "getPaid",
 		"outputs": [],
 		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "openLootBox",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -187,32 +101,21 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bool",
-				"name": "_state",
-				"type": "bool"
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
 			}
 		],
-		"name": "pause",
+		"name": "propagate",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "requestId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "randomWords",
-				"type": "uint256[]"
-			}
-		],
-		"name": "rawFulfillRandomWords",
+		"inputs": [],
+		"name": "release",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -221,31 +124,6 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "RewardClaimed",
-		"type": "event"
 	},
 	{
 		"inputs": [
@@ -289,7 +167,7 @@
 			},
 			{
 				"internalType": "bytes",
-				"name": "data",
+				"name": "_data",
 				"type": "bytes"
 			}
 		],
@@ -345,12 +223,25 @@
 	{
 		"inputs": [
 			{
+				"internalType": "bool",
+				"name": "yes",
+				"type": "bool"
+			}
+		],
+		"name": "setBegun",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
-				"name": "_newCost",
+				"name": "_maxHogDuration",
 				"type": "uint256"
 			}
 		],
-		"name": "setCost",
+		"name": "setMaxHogDuration",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -358,38 +249,12 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
-				"name": "newKeyHash",
-				"type": "bytes32"
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
 			}
 		],
-		"name": "setKeyHash",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint16",
-				"name": "_limit",
-				"type": "uint16"
-			}
-		],
-		"name": "setNftPerAddressLimit",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint64",
-				"name": "subscriptionId",
-				"type": "uint64"
-			}
-		],
-		"name": "setSubscriptionId",
+		"name": "setPrice",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -457,16 +322,45 @@
 	},
 	{
 		"inputs": [],
-		"name": "withdraw",
+		"name": "yoink",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "withdrawTokens",
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "target",
+				"type": "address"
+			}
+		],
+		"name": "yoinkTo",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "addressMintedBalance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -515,19 +409,6 @@
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "cost",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -541,6 +422,38 @@
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "hasHeldToken0",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "hasItBegun",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -572,12 +485,12 @@
 	},
 	{
 		"inputs": [],
-		"name": "maxMintAmount",
+		"name": "lastTransferTimestamp",
 		"outputs": [
 			{
-				"internalType": "uint8",
+				"internalType": "uint256",
 				"name": "",
-				"type": "uint8"
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -585,7 +498,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "maxSupply",
+		"name": "maxHogDuration",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -604,19 +517,6 @@
 				"internalType": "string",
 				"name": "",
 				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "nftPerAddressLimit",
-		"outputs": [
-			{
-				"internalType": "uint16",
-				"name": "",
-				"type": "uint16"
 			}
 		],
 		"stateMutability": "view",
@@ -656,25 +556,12 @@
 	},
 	{
 		"inputs": [],
-		"name": "paused",
+		"name": "priceToRelease",
 		"outputs": [
 			{
-				"internalType": "bool",
+				"internalType": "uint256",
 				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "rewardToken",
-		"outputs": [
-			{
-				"internalType": "contract IERC20",
-				"name": "",
-				"type": "address"
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -707,6 +594,19 @@
 				"internalType": "string",
 				"name": "",
 				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "timeUntilYoinkable",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
