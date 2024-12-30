@@ -6,27 +6,34 @@ export const CONNECT_SUCCESS = "CONNECT_SUCCESS";
 export const CONNECT_FAILED = "CONNECT_FAILED";
 export const UPDATE_ACCOUNT = "UPDATE_ACCOUNT";
 
+// Helper function to fetch configuration dynamically
+const fetchConfig = async () => {
+  try {
+    const response = await fetch("/config/config.json");
+    if (!response.ok) {
+      throw new Error("Failed to fetch config.json");
+    }
+    const config = await response.json();
+    return config;
+  } catch (error) {
+    console.error("Error fetching config.json:", error);
+    throw error;
+  }
+};
+
 // Connect to the blockchain
 export const connect = () => {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     dispatch({ type: CONNECT_REQUEST });
 
-    // Get CONFIG from state or fallback to config.json
-    const CONFIG = getState()?.data?.config || require("../../config/config.json");
-    if (!CONFIG) {
-      console.error("Configuration data is missing.");
-      dispatch({
-        type: CONNECT_FAILED,
-        payload: "Configuration data is missing.",
-      });
-      return;
-    }
+    try {
+      // Fetch the CONFIG dynamically
+      const CONFIG = await fetchConfig();
 
-    console.log("Connecting with CONFIG:", CONFIG);
+      console.log("Connecting with CONFIG:", CONFIG);
 
-    // Check if a Web3 wallet is available
-    if (window.ethereum) {
-      try {
+      // Check if a Web3 wallet is available
+      if (window.ethereum) {
         const web3 = new Web3(window.ethereum);
 
         // Request accounts and network ID
@@ -77,18 +84,18 @@ export const connect = () => {
             payload: `Please connect to the ${CONFIG.NETWORK.NAME} network.`,
           });
         }
-      } catch (error) {
-        console.error("Failed to connect to the blockchain:", error);
+      } else {
+        console.error("MetaMask or other Web3 wallet not detected.");
         dispatch({
           type: CONNECT_FAILED,
-          payload: "Failed to connect to the blockchain.",
+          payload: "Please install a Web3 wallet like MetaMask.",
         });
       }
-    } else {
-      console.error("MetaMask or other Web3 wallet not detected.");
+    } catch (error) {
+      console.error("Error during connection:", error);
       dispatch({
         type: CONNECT_FAILED,
-        payload: "Please install a Web3 wallet like MetaMask.",
+        payload: error.message || "Failed to connect to the blockchain.",
       });
     }
   };
