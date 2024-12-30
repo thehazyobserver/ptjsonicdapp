@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { connect } from "./redux/blockchain/blockchainActions";
-import { initializeContract, fetchData } from "./redux/data/dataActions";
+import { initializeContract } from "./redux/data/dataActions";
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
 
@@ -19,14 +19,6 @@ const StyledButton = styled.button`
   :hover {
     background-color: #444;
   }
-`;
-
-const StyledInput = styled.input`
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  width: 100%;
-  margin-bottom: 10px;
 `;
 
 const YoinkSection = styled.div`
@@ -51,9 +43,7 @@ const formatTime = (seconds) => {
 function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
-  const [targetAddress, setTargetAddress] = useState(""); 
   const [timeUntilYoinkable, setTimeUntilYoinkable] = useState(0);
-  const [holdingJoint, setHoldingJoint] = useState(false); 
 
   const handleConnectWallet = () => {
     dispatch(connect());
@@ -77,20 +67,10 @@ function App() {
       }
     };
 
-    const checkHoldingJoint = async () => {
-      try {
-        const ownerOfToken0 = await blockchain.contract.methods.ownerOf(0).call();
-        setHoldingJoint(ownerOfToken0.toLowerCase() === blockchain.account.toLowerCase());
-      } catch (error) {
-        console.error("Error checking ownership of token 0:", error);
-      }
-    };
-
-    if (blockchain.account && blockchain.contract) {
+    if (blockchain.contract) {
       fetchTime();
-      checkHoldingJoint();
     }
-  }, [blockchain.account, blockchain.contract]);
+  }, [blockchain.contract]);
 
   return (
     <s.Screen>
