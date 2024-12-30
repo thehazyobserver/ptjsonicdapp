@@ -8,19 +8,11 @@ export const UPDATE_ACCOUNT = "UPDATE_ACCOUNT";
 
 // Connect to the blockchain
 export const connect = () => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     dispatch({ type: CONNECT_REQUEST });
 
-    if (!CONFIG) {
-      console.error("CONFIG data is missing.");
-      dispatch({
-        type: CONNECT_FAILED,
-        payload: "Configuration data is missing.",
-      });
-      return;
-    }
-    
-    const CONFIG = getState().data.config; // Access the CONFIG from state
+    // Get CONFIG from state
+    const CONFIG = getState()?.data?.config;
     if (!CONFIG) {
       console.error("Configuration data is missing.");
       dispatch({
@@ -30,9 +22,12 @@ export const connect = () => {
       return;
     }
 
+    // Check if a Web3 wallet is available
     if (window.ethereum) {
       try {
         const web3 = new Web3(window.ethereum);
+
+        // Request accounts and network ID
         const accounts = await window.ethereum.request({
           method: "eth_requestAccounts",
         });
@@ -40,9 +35,8 @@ export const connect = () => {
           method: "net_version",
         });
 
-        // Check if connected to the correct network
+        // Validate network
         if (networkId === CONFIG.NETWORK.ID.toString()) {
-          // Dispatch connection success
           dispatch({
             type: CONNECT_SUCCESS,
             payload: {
@@ -71,14 +65,16 @@ export const connect = () => {
             window.location.reload();
           });
         } else {
-          console.error("Wrong network. Please switch to the correct network.");
+          console.error(
+            `Wrong network. Expected ${CONFIG.NETWORK.NAME}, but connected to network ID ${networkId}.`
+          );
           dispatch({
             type: CONNECT_FAILED,
             payload: `Please connect to the ${CONFIG.NETWORK.NAME} network.`,
           });
         }
-      } catch (err) {
-        console.error("Failed to connect to the blockchain:", err);
+      } catch (error) {
+        console.error("Failed to connect to the blockchain:", error);
         dispatch({
           type: CONNECT_FAILED,
           payload: "Failed to connect to the blockchain.",

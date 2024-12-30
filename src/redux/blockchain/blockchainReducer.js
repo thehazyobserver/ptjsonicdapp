@@ -49,7 +49,8 @@ const blockchainReducer = (state = initialState, action) => {
 
     case "RESET_BLOCKCHAIN":
       return {
-        ...initialState, // Reset the state to the initial configuration
+        ...initialState,
+        errorMsg: state.errorMsg, // Optionally preserve the last error message
       };
 
     default:
