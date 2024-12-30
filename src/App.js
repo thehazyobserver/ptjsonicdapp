@@ -42,6 +42,22 @@ const InputField = styled.input`
   border-radius: 4px;
 `;
 
+const LinksContainer = styled.div`
+  margin-top: 20px;
+  text-align: center;
+
+  a {
+    margin: 0 10px;
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  img {
+    width: 40px;
+    height: 40px;
+  }
+`;
+
 const formatTime = (seconds) => {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -144,6 +160,17 @@ function App() {
             </>
           )}
         </YoinkSection>
+        <LinksContainer>
+          <a href="https://paintswap.io/sonic/collections/0x9b567e03d891f537b2b7874aa4a3308cfe2f4fbb/nfts" target="_blank" rel="noopener noreferrer">
+            <img src="images/paintswap.svg" alt="PaintSwap" />
+          </a>
+          <a href="https://x.com/PassThe_JOINT" target="_blank" rel="noopener noreferrer">
+            <img src="images/x.png" alt="Twitter" />
+          </a>
+          <a href="https://t.me/jointonsonic/1" target="_blank" rel="noopener noreferrer">
+            <img src="images/telegram.png" alt="Telegram" />
+          </a>
+        </LinksContainer>
       </s.Container>
     </s.Screen>
   );
