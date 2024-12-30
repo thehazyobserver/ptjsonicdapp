@@ -2,9 +2,9 @@
   "CONTRACT_ADDRESS": "0x374b897AF1c0213cc2153a761A856bd80fb91c92",
   "SCAN_LINK": "https://sonicscan.org/token/0x374b897af1c0213cc2153a761a856bd80fb91c92",
   "NETWORK": {
-    "NAME": "Fantom",
-    "SYMBOL": "FTM",
-    "ID": 250
+    "NAME": "Sonic Mainnet",
+    "SYMBOL": "S",
+    "ID": 146
   },
   "NFT_NAME": "Pass The Joint",
   "SYMBOL": "JOINT",
