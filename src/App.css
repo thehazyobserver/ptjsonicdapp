@@ -1,0 +1,71 @@
+/* Global Styles */
+body {
+  color: white; /* Change font color to white */
+  background-color: #282c34; /* Optional: Set a background color for contrast */
+  font-family: Arial, sans-serif; /* Optional: Set a default font family */
+}
+
+/* Link Styles */
+.App-link {
+  color: #61dafb;
+}
+
+/* Keyframes for Logo Spin */
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Styled Components */
+.NFTGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  justify-items: center;
+  margin-bottom: 20px;
+}
+
+.NFTBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 200px;
+  margin: 5px;
+  border: 5px solid black; /* Change border color to black */
+  background-color: white; /* Change background color to white */
+  text-align: center;
+}
+
+.NFTImage {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
+.StyledButton {
+  padding: 10px;
+  border-radius: 0; /* Make the button rectangular */
+  border: none;
+  background-color: black; /* Make the button black */
+  font-weight: bold;
+  color: white; /* Font color white */
+  width: 100%; /* Make the button the width of the box */
+  cursor: pointer;
+  text-align: center;
+
+  :hover {
+    background-color: #444; /* Darker shade on hover */
+  }
+}
+
+.TextDescription {
+  text-align: center;
+  font-size: 20px;
+  color: white; /* Font color white */
+}
