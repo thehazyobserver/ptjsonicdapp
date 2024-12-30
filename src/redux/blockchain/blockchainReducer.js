@@ -4,7 +4,7 @@ const initialState = {
   loading: false,
   account: null,
   web3: null,
-  LootBoxNFT: null, // Store the LootBoxNFT contract
+  contract: null, // Store the smart contract instance
   errorMsg: "", // General error message for the connection
 };
 
@@ -35,10 +35,10 @@ const blockchainReducer = (state = initialState, action) => {
         errorMsg: action.payload, // Set the error message for connection failure
       };
 
-    case "SET_LOOTBOXNFT_CONTRACT":
+    case "SET_CONTRACT_INSTANCE":
       return {
         ...state,
-        LootBoxNFT: action.payload, // Store the LootBoxNFT contract
+        contract: action.payload, // Store the smart contract instance
       };
 
     case "UPDATE_ACCOUNT":
