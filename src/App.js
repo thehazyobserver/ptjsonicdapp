@@ -199,13 +199,13 @@ function App() {
             </>
           )}
         </YoinkSection>
-        <HowItWorksSection>
+        <HowItWorks>
           <h3>How It Works</h3>
           <p><strong>Yoink:</strong> Someone’s hogging the joint? Take it for yourself, anon. If you haven’t had it yet, now’s your time to shine.</p>
           <p><strong>Yoink To:</strong> Already had your turn? Pass the joint to another degen and keep the vibes rolling.</p>
           <p>Remember, you can only hold the joint once, but when you pass it, you’ll get a little gift to prove you were part of this legendary smoke sesh.</p>
           <p>This ain’t just a joint; it’s history. Let’s get the whole chain high.</p>
-        </HowItWorksSection>
+        </HowItWorks>
       </s.Container>
     </s.Screen>
   );
