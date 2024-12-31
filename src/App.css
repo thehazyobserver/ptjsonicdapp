@@ -6,6 +6,9 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden; /* Prevent horizontal scrolling */
+  background-image: url('/images/bg.png'); /* Add this line */
+  background-size: cover; /* Ensure the background covers the entire page */
+  background-position: center; /* Center the background image */
 }
 
 /* Link Styles */
