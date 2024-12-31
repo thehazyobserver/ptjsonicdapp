@@ -66,6 +66,24 @@ const LinksContainer = styled.div`
   }
 `;
 
+const HowItWorks = styled.div`
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: left;
+
+  h3 {
+    margin-bottom: 10px;
+  }
+
+  p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+`;
+
 const formatTime = (seconds) => {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -73,8 +91,8 @@ const formatTime = (seconds) => {
   return `${h}h ${m}m ${s}s`;
 };
 
-const CONTRACT_ADDRESS = "0x374b897AF1c0213cc2153a761A856bd80fb91c92"; // Replace with your contract address
-const RPC_URL = "https://sonic.drpc.org"; // Replace with your RPC URL
+const CONTRACT_ADDRESS = "0x374b897AF1c0213cc2153a761A856bd80fb91c92";
+const RPC_URL = "https://sonic.drpc.org";
 
 function App() {
   const dispatch = useDispatch();
@@ -153,9 +171,6 @@ function App() {
           <a href="https://t.me/jointonsonic/1" target="_blank" rel="noopener noreferrer">
             <img src="/images/telegram.png" alt="Telegram" />
           </a>
-          <a href="https://passthejoint.xyz/" target="_blank" rel="noopener noreferrer">
-            <img src="/images/PassTheJoint.gif" alt="Pass The Joint" style={{ width: '40px', height: '40px' }} />
-          </a>
         </LinksContainer>
         <StyledButton onClick={handleConnectWallet}>
           {blockchain.account ? `Connected: ${blockchain.account}` : "Connect Wallet"}
@@ -165,7 +180,7 @@ function App() {
         <s.TextTitle style={{ textAlign: "center", fontSize: 30, marginTop: 20 }}>
           Pass the JOINT
         </s.TextTitle>
-        <img src="/images/PassTheJoint.gif" alt="Pass The Joint" style={{ width: '300px', height: 'auto', marginTop: '20px' }} />
+        <img src="/images/PassTheJoint.gif" alt="Pass The Joint" style={{ width: "300px", height: "auto", marginTop: "20px" }} />
         <YoinkSection>
           <div className="yoink-timer">
             {timeUntilYoinkable > 0
@@ -187,6 +202,18 @@ function App() {
             </>
           )}
         </YoinkSection>
+        <HowItWorks>
+          <h3>How It Works</h3>
+          <p>
+            Pass the JOINT is the ultimate Sonic Chain smoke sesh. Here's the deal: you can only hold the joint once, but when you pass it, you get a lifelong gift to prove you were part of something special. 
+          </p>
+          <p>
+            First, yoink the joint when it’s your turn. Hold it, vibe with it, and enjoy being the center of the sesh. Then, pass it to the next legend to keep the good vibes rolling. It’s simple, fun, and part of history.
+          </p>
+          <p>
+            This isn’t just a token; it’s a movement. The whole Sonic Chain is getting high together. Don’t miss your chance to join the ride. Grab the joint and pass it like a pro.
+          </p>
+        </HowItWorks>
       </s.Container>
     </s.Screen>
   );
