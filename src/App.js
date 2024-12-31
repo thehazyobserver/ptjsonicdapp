@@ -205,6 +205,7 @@ function App() {
           <p><strong>Yoink To:</strong> Already had your turn? Pass the joint to another degen and keep the vibes rolling.</p>
           <p>Remember, you can only hold the joint once, but when you pass it, you’ll get a little gift to prove you were part of this legendary smoke sesh.</p>
           <p>This ain’t just a joint; it’s history. Let’s get the whole chain high.</p>
+          <p><strong>View on Paintswap:</strong> <a href="https://paintswap.io/sonic/collections/0x374b897af1c0213cc2153a761a856bd80fb91c92/nfts" target="_blank" rel="noopener noreferrer">Paintswap</a></p>
         </HowItWorks>
       </s.Container>
     </s.Screen>
