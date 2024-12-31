@@ -9,7 +9,7 @@ import styled from "styled-components";
 
 const StyledButton = styled.button`
   padding: 10px;
-  border-radius: 0;
+  border-radius: 4px;
   border: none;
   background-color: black;
   font-weight: bold;
@@ -17,6 +17,7 @@ const StyledButton = styled.button`
   width: 100%;
   cursor: pointer;
   text-align: center;
+  margin-top: 10px;
   :hover {
     background-color: #444;
   }
@@ -141,6 +142,7 @@ function App() {
         <s.TextTitle style={{ textAlign: "center", fontSize: 30, marginTop: 20 }}>
           Pass the JOINT
         </s.TextTitle>
+        <img src="/images/PassTheJoint.gif" alt="Pass The Joint" style={{ width: '300px', height: 'auto', marginTop: '20px' }} />
         <YoinkSection>
           <div className="yoink-timer">
             {timeUntilYoinkable > 0
@@ -161,16 +163,16 @@ function App() {
           )}
         </YoinkSection>
         <LinksContainer>
-  <a href="https://paintswap.io/sonic/collections/0x9b567e03d891f537b2b7874aa4a3308cfe2f4fbb/nfts" target="_blank" rel="noopener noreferrer">
-    <img src="/images/paintswap.svg" alt="PaintSwap" />
-  </a>
-  <a href="https://x.com/PassThe_JOINT" target="_blank" rel="noopener noreferrer">
-    <img src="/images/x.png" alt="Twitter" />
-  </a>
-  <a href="https://t.me/jointonsonic/1" target="_blank" rel="noopener noreferrer">
-    <img src="/images/telegram.png" alt="Telegram" />
-  </a>
-</LinksContainer>
+          <a href="https://paintswap.io/sonic/collections/0x374b897af1c0213cc2153a761a856bd80fb91c92/nfts" target="_blank" rel="noopener noreferrer">
+            <img src="/images/paintswap.svg" alt="PaintSwap" />
+          </a>
+          <a href="https://x.com/PassThe_JOINT" target="_blank" rel="noopener noreferrer">
+            <img src="/images/x.png" alt="Twitter" />
+          </a>
+          <a href="https://t.me/jointonsonic/1" target="_blank" rel="noopener noreferrer">
+            <img src="/images/telegram.png" alt="Telegram" />
+          </a>
+        </LinksContainer>
       </s.Container>
     </s.Screen>
   );
