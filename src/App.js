@@ -69,9 +69,6 @@ const LinksContainer = styled.div`
 const HowItWorks = styled.div`
   margin-top: 40px;
   padding: 20px;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 8px;
   text-align: left;
 
   h3 {
