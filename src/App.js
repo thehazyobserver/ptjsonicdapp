@@ -66,7 +66,7 @@ const formatTime = (seconds) => {
   return `${h}h ${m}m ${s}s`;
 };
 
-const CONTRACT_ADDRESS = "0x374b897AF1c0213cc2153a761A856bd80fb91c92"; // Replace with your contract address
+const CONTRACT_ADDRESS = "0x374b897AF1c0213cc2153a761a856bd80fb91c92"; // Replace with your contract address
 const RPC_URL = "https://sonic.drpc.org"; // Replace with your RPC URL
 
 function App() {
@@ -151,7 +151,9 @@ function App() {
           </div>
           {timeUntilYoinkable <= 0 && (
             <>
+              <p>Yoink for yourself</p>
               <StyledButton onClick={handleYoink}>Yoink</StyledButton>
+              <p>Yoink and send to someone else</p>
               <InputField
                 type="text"
                 placeholder="Enter address to Yoink To"
