@@ -1,5 +1,4 @@
 import { PassTheJointContract } from './contracts'; // Ensure the contract is imported correctly
-import defaultImage from '../../assets/images/JOINTPACK.jpg'; // Ensure the default image is correctly imported
 
 // Helper function to handle errors
 const handleError = (error, dispatch, actionType) => {
