@@ -179,33 +179,33 @@ function App() {
         </s.TextTitle>
         <img src="/images/PassTheJoint.gif" alt="Pass The Joint" style={{ width: "300px", height: "auto", marginTop: "20px" }} />
         <YoinkSection>
-          <div className="yoink-timer">
-            {timeUntilYoinkable > 0
-              ? `Time Until Yoinkable: ${formatTime(timeUntilYoinkable)}`
-              : "The joint is yoinkable now!"}
-          </div>
-          {timeUntilYoinkable <= 0 && (
-            <>
-              <p>Yoink for yourself</p>
-              <StyledButton onClick={handleYoink}>Yoink</StyledButton>
-              <p>Yoink and send to someone else</p>
-              <InputField
-                type="text"
-                placeholder="Enter address to Yoink To"
-                value={yoinkToAddress}
-                onChange={(e) => setYoinkToAddress(e.target.value)}
-              />
-              <StyledButton onClick={handleYoinkTo}>Yoink To</StyledButton>
-            </>
-          )}
-        </YoinkSection>
+  <div className="yoink-timer">
+    {timeUntilYoinkable > 0
+      ? `Time Until Yoinkable: ${formatTime(timeUntilYoinkable)}`
+      : "The joint is yoinkable now!"}
+  </div>
+  {timeUntilYoinkable <= 0 && (
+    <>
+      <p>Yoink for yourself</p>
+      <StyledButton onClick={handleYoink}>Yoink</StyledButton>
+      <p>Yoink and send to someone else</p>
+      <InputField
+        type="text"
+        placeholder="Enter address to Yoink To"
+        value={yoinkToAddress}
+        onChange={(e) => setYoinkToAddress(e.target.value)}
+      />
+      <StyledButton onClick={handleYoinkTo}>Yoink To</StyledButton>
+      <p><strong>View on Paintswap:</strong> <a href="https://paintswap.io/sonic/collections/0x374b897af1c0213cc2153a761a856bd80fb91c92/nfts" target="_blank" rel="noopener noreferrer" className="white-link">Paintswap</a></p>
+    </>
+  )}
+</YoinkSection>
         <HowItWorks>
           <h3>How It Works</h3>
           <p><strong>Yoink:</strong> Someone’s hogging the joint? Take it for yourself, anon. If you haven’t had it yet, now’s your time to shine.</p>
           <p><strong>Yoink To:</strong> Already had your turn? Pass the joint to another degen and keep the vibes rolling.</p>
           <p>Remember, you can only hold the joint once, but when you pass it, you’ll get a little gift to prove you were part of this legendary smoke sesh.</p>
           <p>This ain’t just a joint; it’s history. Let’s get the whole chain high.</p>
-          <p><strong>View on Paintswap:</strong> <a href="https://paintswap.io/sonic/collections/0x374b897af1c0213cc2153a761a856bd80fb91c92/nfts" target="_blank" rel="noopener noreferrer">Paintswap</a></p>
         </HowItWorks>
       </s.Container>
     </s.Screen>
