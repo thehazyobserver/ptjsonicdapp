@@ -7,17 +7,24 @@ import contractABI from "./redux/blockchain/abis/erc721Abi.json"; // Import the 
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
 
-const StyledButton = styled.button`
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
   padding: 10px;
+  box-sizing: border-box;
+`;
+
+const StyledButton = styled.button`
+  padding: 5px 10px;
   border-radius: 4px;
   border: none;
   background-color: black;
   font-weight: bold;
   color: white;
-  width: 100%;
   cursor: pointer;
   text-align: center;
-  margin-top: 10px;
   :hover {
     background-color: #444;
   }
@@ -44,8 +51,8 @@ const InputField = styled.input`
 `;
 
 const LinksContainer = styled.div`
-  margin-top: 20px;
-  text-align: center;
+  display: flex;
+  align-items: center;
 
   a {
     margin: 0 10px;
@@ -66,7 +73,7 @@ const formatTime = (seconds) => {
   return `${h}h ${m}m ${s}s`;
 };
 
-const CONTRACT_ADDRESS = "0x374b897AF1c0213cc2153a761a856bd80fb91c92"; // Replace with your contract address
+const CONTRACT_ADDRESS = "0x374b897AF1c0213cc2153a761A856bd80fb91c92"; // Replace with your contract address
 const RPC_URL = "https://sonic.drpc.org"; // Replace with your RPC URL
 
 function App() {
@@ -135,10 +142,26 @@ function App() {
 
   return (
     <s.Screen>
-      <s.Container flex={1} ai={"center"} style={{ padding: 24 }}>
+      <Header>
+        <LinksContainer>
+          <a href="https://paintswap.io/sonic/collections/0x374b897af1c0213cc2153a761a856bd80fb91c92/nfts" target="_blank" rel="noopener noreferrer">
+            <img src="/images/paintswap.svg" alt="PaintSwap" />
+          </a>
+          <a href="https://x.com/PassThe_JOINT" target="_blank" rel="noopener noreferrer">
+            <img src="/images/x.png" alt="Twitter" />
+          </a>
+          <a href="https://t.me/jointonsonic/1" target="_blank" rel="noopener noreferrer">
+            <img src="/images/telegram.png" alt="Telegram" />
+          </a>
+          <a href="https://passthejoint.xyz/" target="_blank" rel="noopener noreferrer">
+            <img src="/images/PassTheJoint.gif" alt="Pass The Joint" style={{ width: '40px', height: '40px' }} />
+          </a>
+        </LinksContainer>
         <StyledButton onClick={handleConnectWallet}>
           {blockchain.account ? `Connected: ${blockchain.account}` : "Connect Wallet"}
         </StyledButton>
+      </Header>
+      <s.Container flex={1} ai={"center"} style={{ padding: 24 }}>
         <s.TextTitle style={{ textAlign: "center", fontSize: 30, marginTop: 20 }}>
           Pass the JOINT
         </s.TextTitle>
@@ -164,17 +187,6 @@ function App() {
             </>
           )}
         </YoinkSection>
-        <LinksContainer>
-          <a href="https://paintswap.io/sonic/collections/0x374b897af1c0213cc2153a761a856bd80fb91c92/nfts" target="_blank" rel="noopener noreferrer">
-            <img src="/images/paintswap.svg" alt="PaintSwap" />
-          </a>
-          <a href="https://x.com/PassThe_JOINT" target="_blank" rel="noopener noreferrer">
-            <img src="/images/x.png" alt="Twitter" />
-          </a>
-          <a href="https://t.me/jointonsonic/1" target="_blank" rel="noopener noreferrer">
-            <img src="/images/telegram.png" alt="Telegram" />
-          </a>
-        </LinksContainer>
       </s.Container>
     </s.Screen>
   );
