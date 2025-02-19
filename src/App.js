@@ -169,7 +169,7 @@ function App() {
             <img src="/images/telegram.png" alt="Telegram" />
           </a>
         <a href="https://jointnft.netlify.app/" target="_blank">
-            <img src="images/PassTheJointme.gif" alt="Pass the JOINT">
+            <img src="images/PassTheJointme.gif" alt="Pass the JOINT" />
         </a>
         </LinksContainer>
         <StyledButton onClick={handleConnectWallet}>
