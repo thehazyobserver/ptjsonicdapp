@@ -168,7 +168,7 @@ function App() {
           <a href="https://t.me/jointonsonic/1" target="_blank" rel="noopener noreferrer">
             <img src="/images/telegram.png" alt="Telegram" />
           </a>
-        <a href="https://jointnft.netlify.app/" target="_blank">
+        <a href="https://jointnft.netlify.app/" target="_blank" rel="noopener noreferrer">
             <img src="images/PassTheJointme.gif" alt="Pass the JOINT" />
         </a>
         </LinksContainer>
