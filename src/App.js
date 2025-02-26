@@ -6,10 +6,11 @@ import { initializeContract } from "./redux/data/dataActions";
 import contractABI from "./redux/blockchain/abis/erc721Abi.json"; // Import the ABI
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
+
 // Ethers v6 imports
 import { JsonRpcProvider, Contract, ZeroAddress } from "ethers";
 
-// -------------- STYLED COMPONENTS EXAMPLES --------------
+// ---------------- STYLED COMPONENTS --------------
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
@@ -173,6 +174,10 @@ const formatTime = (seconds) => {
 const CONTRACT_ADDRESS = "0x374b897AF1c0213cc2153a761A856bd80fb91c92";
 const RPC_URL = "https://sonic.drpc.org";
 
+// For chunked log queries, we use blocks under 10,000 to avoid free-tier limits.
+const CHUNK_SIZE = 9500;
+const DEPLOYMENT_BLOCK = 1943598; // The block at which the contract was deployed
+
 function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
@@ -180,6 +185,7 @@ function App() {
   // ----- Local State -----
   const [timeUntilYoinkable, setTimeUntilYoinkable] = useState(0);
   const [yoinkToAddress, setYoinkToAddress] = useState("");
+
   // This is the Web3 contract instance for write calls
   const [writeContract, setWriteContract] = useState(null);
 
@@ -192,11 +198,10 @@ function App() {
     dispatch(connect());
   };
 
-  // ----------- YOINK WRITE CALLS -------------
+  // ----------- YOINK WRITE CALLS (Web3) -------------
   const handleYoink = async () => {
     try {
       if (writeContract && blockchain.account) {
-        // Use the Web3 contract for writing
         await writeContract.methods.yoink().send({ from: blockchain.account });
         alert("Yoink successful!");
       } else {
@@ -211,9 +216,7 @@ function App() {
   const handleYoinkTo = async () => {
     try {
       if (writeContract && blockchain.account) {
-        await writeContract.methods
-          .yoinkTo(yoinkToAddress)
-          .send({ from: blockchain.account });
+        await writeContract.methods.yoinkTo(yoinkToAddress).send({ from: blockchain.account });
         alert(`Yoinked to ${yoinkToAddress} successfully!`);
       } else {
         alert("Contract is not initialized or wallet not connected.");
@@ -230,10 +233,7 @@ function App() {
       dispatch(initializeContract());
 
       const web3 = blockchain.web3 || new Web3(RPC_URL);
-      const initializedContract = new web3.eth.Contract(
-        contractABI,
-        CONTRACT_ADDRESS
-      );
+      const initializedContract = new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
       setWriteContract(initializedContract);
     }
   }, [blockchain.account, blockchain.web3, dispatch]);
@@ -243,9 +243,7 @@ function App() {
     const fetchTime = async () => {
       try {
         const web3 = blockchain.web3 || new Web3(RPC_URL);
-        const readContract =
-          writeContract ||
-          new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
+        const readContract = writeContract || new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
 
         const time = await readContract.methods.timeUntilYoinkable().call();
         setTimeUntilYoinkable(parseInt(time, 10));
@@ -275,27 +273,42 @@ function App() {
           setCurrentHolder("Error fetching data");
         }
 
-        // 3) Fetch past holders (Transfer events for tokenId=0)
+        // 3) Chunked fetch for past holders to avoid 10k-block free-tier limit
         try {
-          // If you only want tokenId = 0, pass 0n as the third argument
+          // We'll gather logs from chunked queries
+          let allLogs = [];
+          const latestBlock = await provider.getBlockNumber();
+
+          // Create the Transfer filter for tokenId=0
           const filter = readOnlyContract.filters.Transfer(null, null, 0n);
-          const deploymentBlock = 1943598;
-          const logs = await readOnlyContract.queryFilter(
-            filter,
-            deploymentBlock,
-            "latest"
-          );
+
+          // Go chunk by chunk (9500 blocks at a time)
+          for (let fromBlock = DEPLOYMENT_BLOCK; fromBlock <= latestBlock; fromBlock += CHUNK_SIZE) {
+            let toBlock = fromBlock + CHUNK_SIZE;
+            if (toBlock > latestBlock) {
+              toBlock = latestBlock;
+            }
+
+            console.log(`Querying logs from block ${fromBlock} to ${toBlock}`);
+            const chunkLogs = await readOnlyContract.queryFilter(filter, fromBlock, toBlock);
+            allLogs.push(...chunkLogs);
+
+            if (toBlock === latestBlock) {
+              break;
+            }
+          }
 
           // Filter out ZeroAddress & duplicates
-          let uniqueHolders = logs
+          let uniqueHolders = allLogs
             .map((log) => log.args.from)
-            .filter((address, index, self) => address !== ZeroAddress && self.indexOf(address) === index);
+            .filter(
+              (address, index, self) => address !== ZeroAddress && self.indexOf(address) === index
+            );
 
-          // Reverse so most recent is first, if desired
           uniqueHolders = uniqueHolders.reverse();
           setPastHolders(uniqueHolders);
         } catch (error) {
-          console.error("Error fetching past holders:", error);
+          console.error("Error fetching past holders (chunked):", error);
           setPastHolders(["Error fetching data"]);
         }
       } catch (error) {
@@ -435,6 +448,27 @@ function App() {
               <img src="/images/telegram.png" alt="Telegram" />
             </a>
           </div>
+
+          <h1>Pass the JOINT</h1>
+          <img
+            src="/images/PassTheJoint.gif"
+            alt="Pass the JOINT"
+            className="gif"
+          />
+          <p>
+            The Joint is a symbol of unity on Fantom. One more rotation before the price is
+            as high as we are and we’re over in the green pastures of Sonic.
+          </p>
+          <p>
+            There is only 1 $JOINT so share it with your friends. When you pass the joint,
+            you will receive a gift.
+          </p>
+          <p>
+            A fork of{" "}
+            <a href="https://theworm.wtf/" target="_blank" rel="noopener noreferrer">
+              The Worm NFT
+            </a>
+          </p>
 
           <div className="holder">
             <h2>Current Joint Holder</h2>
