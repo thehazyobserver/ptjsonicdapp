@@ -6,7 +6,7 @@ import { initializeContract } from "./redux/data/dataActions";
 import contractABI from "./redux/blockchain/abis/erc721Abi.json"; // Import the ABI
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
-import { ethers } from "ethers"; // Import ethers.js
+import { ethers, AddressZero } from "ethers";
 
 const Header = styled.div`
   display: flex;
@@ -184,7 +184,7 @@ function App() {
   const handleYoink = async () => {
     try {
       if (contract && blockchain.account) {
-        await contract.methods.yoink().send({ from: blockchain.account });
+        await contract.yoink({ from: blockchain.account });
         alert("Yoink successful!");
       } else {
         alert("Contract is not initialized or wallet not connected.");
@@ -198,7 +198,7 @@ function App() {
   const handleYoinkTo = async () => {
     try {
       if (contract && blockchain.account) {
-        await contract.methods.yoinkTo(yoinkToAddress).send({ from: blockchain.account });
+        await contract.yoinkTo(yoinkToAddress, { from: blockchain.account });
         alert(`Yoinked to ${yoinkToAddress} successfully!`);
       } else {
         alert("Contract is not initialized or wallet not connected.");
@@ -235,7 +235,7 @@ function App() {
   }, [blockchain.web3, contract]);
 
   useEffect(() => {
-    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
     const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, provider);
 
     const fetchCurrentHolder = async () => {
@@ -254,8 +254,8 @@ function App() {
         const deploymentBlock = 1943598;
         const logs = await contract.queryFilter(filter, deploymentBlock, 'latest');
 
-        let pastHolders = logs.map(log => log.args.from).filter((address, index, self) =>
-          address !== ethers.constants.AddressZero && self.indexOf(address) === index
+        let pastHolders = logs.map(log => log.args.from).filter(
+          (address, index, self) => address !== AddressZero && self.indexOf(address) === index
         );
 
         pastHolders = pastHolders.reverse();
