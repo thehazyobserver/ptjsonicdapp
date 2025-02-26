@@ -412,29 +412,6 @@ function App() {
 
         {/* -------------- LEADERBOARD SECTION -------------- */}
         <LeaderboardSection>
-          <div className="button-container">
-            <a
-              href="https://paintswap.finance/marketplace/fantom/collections/pass-the-%24joint"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img src="/images/paintswap.svg" alt="PaintSwap" />
-            </a>
-            <a
-              href="https://x.com/PassTheJointFTM"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img src="/images/x.png" alt="Twitter" />
-            </a>
-            <a
-              href="https://t.me/PASSTHEJOINTFTM/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img src="/images/telegram.png" alt="Telegram" />
-            </a>
-          </div>
 <br />
           {/* Current Joint Holder: tokenId=0 */}
           <div className="holder">
