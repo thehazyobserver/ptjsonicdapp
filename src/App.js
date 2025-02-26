@@ -3,12 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import Web3 from "web3";
 import { connect } from "./redux/blockchain/blockchainActions";
 import { initializeContract } from "./redux/data/dataActions";
-import contractABI from "./redux/blockchain/abis/erc721Abi.json"; // Import the ABI
+import contractABI from "./redux/blockchain/abis/erc721Abi.json"; // Your ABI
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
 
-// Ethers v6 imports
-import { JsonRpcProvider, Contract, ZeroAddress } from "ethers";
+// Ethers v6 imports (for read-only enumeration)
+import { JsonRpcProvider, Contract } from "ethers";
 
 // ---------------- STYLED COMPONENTS --------------
 const Header = styled.div`
@@ -162,7 +162,7 @@ const LeaderboardSection = styled.div`
   }
 `;
 
-// Convert seconds into h:m:s
+// Utility function to format seconds as h:m:s
 const formatTime = (seconds) => {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -172,33 +172,33 @@ const formatTime = (seconds) => {
 
 // ---------------- CONSTANTS ----------------
 const CONTRACT_ADDRESS = "0x374b897AF1c0213cc2153a761A856bd80fb91c92";
-const RPC_URL = "https://sonic.drpc.org";
-
-// For chunked log queries, we use blocks under 10,000 to avoid free-tier limits.
-const CHUNK_SIZE = 9500;
-const DEPLOYMENT_BLOCK = 1943598; // The block at which the contract was deployed
+const RPC_URL = "https://rpc.soniclabs.com";
 
 function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
 
-  // ----- Local State -----
+  // Local state
   const [timeUntilYoinkable, setTimeUntilYoinkable] = useState(0);
   const [yoinkToAddress, setYoinkToAddress] = useState("");
 
-  // This is the Web3 contract instance for write calls
+  // Web3 contract for write calls (yoink, etc.)
   const [writeContract, setWriteContract] = useState(null);
 
-  // Data from read calls
+  // Display: current holder (tokenId=0) + enumerated tokens
   const [currentHolder, setCurrentHolder] = useState("Loading...");
-  const [pastHolders, setPastHolders] = useState([]);
+  const [allHolders, setAllHolders] = useState([]);
 
-  // ----------- CONNECT WALLET -------------
+  // --------------------------------------------------------------------------
+  // 1) Connect Wallet
+  // --------------------------------------------------------------------------
   const handleConnectWallet = () => {
     dispatch(connect());
   };
 
-  // ----------- YOINK WRITE CALLS (Web3) -------------
+  // --------------------------------------------------------------------------
+  // 2) Write Calls with Web3
+  // --------------------------------------------------------------------------
   const handleYoink = async () => {
     try {
       if (writeContract && blockchain.account) {
@@ -227,18 +227,21 @@ function App() {
     }
   };
 
-  // ----------- INITIALIZE WEB3 CONTRACT (for writing) -------------
+  // --------------------------------------------------------------------------
+  // 3) Initialize Web3 Contract for Writing
+  // --------------------------------------------------------------------------
   useEffect(() => {
     if (blockchain.account && blockchain.web3) {
       dispatch(initializeContract());
-
       const web3 = blockchain.web3 || new Web3(RPC_URL);
       const initializedContract = new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
       setWriteContract(initializedContract);
     }
   }, [blockchain.account, blockchain.web3, dispatch]);
 
-  // ----------- FETCH TIME UNTIL YOINKABLE (can do read via Web3 or Ethers) -------------
+  // --------------------------------------------------------------------------
+  // 4) Fetch Time Until Yoinkable (Web3 read)
+  // --------------------------------------------------------------------------
   useEffect(() => {
     const fetchTime = async () => {
       try {
@@ -256,72 +259,56 @@ function App() {
     fetchTime();
   }, [blockchain.web3, writeContract]);
 
-  // ----------- USE ETHERS v6 FOR READ-ONLY (currentHolder, pastHolders) -------------
+  // --------------------------------------------------------------------------
+  // 5) Fetch Holders with Ethers (Enumeration), No Log Queries
+  // --------------------------------------------------------------------------
   useEffect(() => {
-    const fetchReadOnlyData = async () => {
+    const fetchHoldersEnumerable = async () => {
       try {
-        // 1) Create a read-only Ethers provider and contract
         const provider = new JsonRpcProvider(RPC_URL);
         const readOnlyContract = new Contract(CONTRACT_ADDRESS, contractABI, provider);
 
-        // 2) Fetch current holder
+        // A) Current holder of tokenId=0
         try {
-          const holder = await readOnlyContract.ownerOf(0);
-          setCurrentHolder(holder);
+          const holder0 = await readOnlyContract.ownerOf(0);
+          setCurrentHolder(holder0);
         } catch (error) {
           console.error("Error fetching current holder:", error);
           setCurrentHolder("Error fetching data");
         }
 
-        // 3) Chunked fetch for past holders to avoid 10k-block free-tier limit
+        // B) Enumerate all tokens in descending order
         try {
-          // We'll gather logs from chunked queries
-          let allLogs = [];
-          const latestBlock = await provider.getBlockNumber();
+          const totalSupplyBN = await readOnlyContract.totalSupply();
+          const totalSupply = Number(totalSupplyBN);
 
-          // Create the Transfer filter for tokenId=0
-          const filter = readOnlyContract.filters.Transfer(null, null, 0n);
+          const holdersReversed = [];
+          for (let i = totalSupply - 1; i >= 0; i--) {
+            const tokenIdBN = await readOnlyContract.tokenByIndex(i);
+            const tokenId = Number(tokenIdBN);
 
-          // Go chunk by chunk (9500 blocks at a time)
-          for (let fromBlock = DEPLOYMENT_BLOCK; fromBlock <= latestBlock; fromBlock += CHUNK_SIZE) {
-            let toBlock = fromBlock + CHUNK_SIZE;
-            if (toBlock > latestBlock) {
-              toBlock = latestBlock;
-            }
-
-            console.log(`Querying logs from block ${fromBlock} to ${toBlock}`);
-            const chunkLogs = await readOnlyContract.queryFilter(filter, fromBlock, toBlock);
-            allLogs.push(...chunkLogs);
-
-            if (toBlock === latestBlock) {
-              break;
-            }
+            const tokenOwner = await readOnlyContract.ownerOf(tokenId);
+            holdersReversed.push({ tokenId, owner: tokenOwner });
           }
-
-          // Filter out ZeroAddress & duplicates
-          let uniqueHolders = allLogs
-            .map((log) => log.args.from)
-            .filter(
-              (address, index, self) => address !== ZeroAddress && self.indexOf(address) === index
-            );
-
-          uniqueHolders = uniqueHolders.reverse();
-          setPastHolders(uniqueHolders);
-        } catch (error) {
-          console.error("Error fetching past holders (chunked):", error);
-          setPastHolders(["Error fetching data"]);
+          setAllHolders(holdersReversed);
+        } catch (err) {
+          console.error("Error enumerating token holders:", err);
+          setAllHolders([]);
         }
-      } catch (error) {
-        console.error("Unexpected error in read-only fetch:", error);
+      } catch (err) {
+        console.error("Unexpected error in read-only fetch:", err);
       }
     };
 
-    fetchReadOnlyData();
+    fetchHoldersEnumerable();
   }, []);
 
-  // ------------------------ RENDER ------------------------
+  // --------------------------------------------------------------------------
+  // RENDER
+  // --------------------------------------------------------------------------
   return (
     <s.Screen>
+      {/* -------------- HEADER -------------- */}
       <Header>
         <LinksContainer>
           <a
@@ -368,7 +355,7 @@ function App() {
           style={{ width: "300px", height: "auto", marginTop: "20px" }}
         />
 
-        {/* YOINK SECTION */}
+        {/* -------------- YOINK SECTION -------------- */}
         <YoinkSection>
           <div className="yoink-timer">
             {timeUntilYoinkable > 0
@@ -405,7 +392,7 @@ function App() {
           )}
         </YoinkSection>
 
-        {/* HOW IT WORKS */}
+        {/* -------------- HOW IT WORKS -------------- */}
         <HowItWorks>
           <h3>How It Works</h3>
           <p>
@@ -417,13 +404,13 @@ function App() {
             degen and keep the vibes rolling.
           </p>
           <p>
-            Remember, you can only hold the joint once, but when you pass it, you’ll get
-            a little gift to prove you were part of this legendary smoke sesh.
+            Remember, you can only hold the joint once, but when you pass it, you’ll get a
+            little gift to prove you were part of this legendary smoke sesh.
           </p>
           <p>This ain’t just a joint; it’s history. Let’s get the whole chain high.</p>
         </HowItWorks>
 
-        {/* LEADERBOARD SECTION */}
+        {/* -------------- LEADERBOARD SECTION -------------- */}
         <LeaderboardSection>
           <div className="button-container">
             <a
@@ -448,38 +435,21 @@ function App() {
               <img src="/images/telegram.png" alt="Telegram" />
             </a>
           </div>
-
-          <h1>Pass the JOINT</h1>
-          <img
-            src="/images/PassTheJoint.gif"
-            alt="Pass the JOINT"
-            className="gif"
-          />
-          <p>
-            The Joint is a symbol of unity on Fantom. One more rotation before the price is
-            as high as we are and we’re over in the green pastures of Sonic.
-          </p>
-          <p>
-            There is only 1 $JOINT so share it with your friends. When you pass the joint,
-            you will receive a gift.
-          </p>
-          <p>
-            A fork of{" "}
-            <a href="https://theworm.wtf/" target="_blank" rel="noopener noreferrer">
-              The Worm NFT
-            </a>
-          </p>
-
+<br />
+          {/* Current Joint Holder: tokenId=0 */}
           <div className="holder">
             <h2>Current Joint Holder</h2>
             <p id="currentHolder">{currentHolder}</p>
           </div>
 
+          {/* All tokens in descending order: "tokenId - owner" */}
           <div className="past-holders">
             <h2>Those who have hit the JOINT</h2>
             <ul id="pastHolders">
-              {pastHolders.map((holder, index) => (
-                <li key={index}>{holder}</li>
+              {allHolders.map((item, index) => (
+                <li key={index}>
+                  {item.tokenId} - {item.owner}
+                </li>
               ))}
             </ul>
           </div>
