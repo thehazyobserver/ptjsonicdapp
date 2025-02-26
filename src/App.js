@@ -7,6 +7,7 @@ import contractABI from "./redux/blockchain/abis/erc721Abi.json"; // Import the 
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
 import { ethers } from "ethers"; // Import ethers.js
+import { JsonRpcProvider } from "@ethersproject/providers"; // Import JsonRpcProvider
 
 const Header = styled.div`
   display: flex;
@@ -235,7 +236,7 @@ function App() {
   }, [blockchain.web3, contract]);
 
   useEffect(() => {
-    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+    const provider = new JsonRpcProvider(RPC_URL);
     const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, provider);
 
     const fetchCurrentHolder = async () => {
